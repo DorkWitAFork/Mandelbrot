@@ -49,9 +49,9 @@ void ComplexPlane::zoomIn()
 	m_zoomCount++;
 	float x_size = BASE_WIDTH * pow(BASE_ZOOM, m_zoomCount);
 	float y_size = BASE_HEIGHT * m_aspectRatio * pow(BASE_ZOOM, m_zoomCount);
-	m_plane_size.x = x_size;
+	m_plane_size.x = x_size; // Keeping things separate for my own readability
 	m_plane_size.y = y_size;
-	m_state = State::CALCULATING;
+	m_state = State::CALCULATING; // Revert to calculating so it can redraw at the new spot
 }
 
 void ComplexPlane::zoomOut()
@@ -60,18 +60,23 @@ void ComplexPlane::zoomOut()
 	float x_size = BASE_WIDTH * pow(BASE_ZOOM, m_zoomCount);
 	float y_size = BASE_HEIGHT * m_aspectRatio * pow(BASE_ZOOM, m_zoomCount);
 	m_plane_size = { x_size, y_size };
-	m_state = State::CALCULATING;
+	m_state = State::CALCULATING; // Revert to calculating so it can redraw at the new spot
 }
 
 void ComplexPlane::setCenter(Vector2i mousePixel)
 {
+	/*
+	The crucial part : setting the center of the plane to the coordinates of the mouse,
+	wherever they click will be the new center 
+	*/
 	m_plane_center = mapPixelToCoords(mousePixel);
 	m_state = State::CALCULATING;
 }
 
 void ComplexPlane::setMouseLocation(Vector2i mousePixel)
 {
-	m_mouseLocation = mapPixelToCoords(mousePixel);
+	// Not much here, just mapping again
+	m_mouseLocation = mapPixelToCoords(mousePixel); 
 }
 
 void ComplexPlane::loadText(Text& text)
@@ -88,11 +93,15 @@ void ComplexPlane::loadText(Text& text)
 
 size_t ComplexPlane::countIterations(Vector2f coord)
 {
+	// Create our complex number from the coordinates
 	complex<float> c;
-	c.real(coord.x);
+	c.real(coord.x); // Kept this separate for dubugging/readability
 	c.imag(coord.y);
-	complex<float> z(0, 0);
-	size_t count = 0;
+
+	complex<float> z(0, 0); // Now to create our z value, which represents the current iteration
+	size_t count = 0; // To keep track of how many iterations we've done
+
+	// This goes until we either get past 2, or we read the maximumn iterations
 	while (abs(z) < 2 && count < MAX_ITER)
 	{
 		z = z * z + c;
@@ -111,8 +120,9 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 	}
 	else
 	{
+
 		int region = count / (MAX_ITER / 5);
-		int color = count % (MAX_ITER / 5);
+		int color = count % 5;
 		switch (region)
 		{
 		case 0:
