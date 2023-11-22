@@ -26,20 +26,25 @@ void ComplexPlane::draw(RenderTarget& target, RenderStates states) const
 
 void ComplexPlane::updateRender()
 {
+	// Only do this if it's calculating
 	if (m_state == State::CALCULATING)
 	{
+		// rows
 		for (int i = 0; i < m_pixel_size.y; i++)
 		{
+			// columns
 			for (int j = 0; j < m_pixel_size.x; j++)
 			{
+				// store the vertex
 				m_vArray[i * m_pixel_size.x + j].position = { (float)j,(float)i };
-				Vector2f coord = mapPixelToCoords({ j,i });
+				Vector2f coord = mapPixelToCoords({ j,i }); // its position on the plane
 				int count = countIterations(coord);
 				Uint8 r, g, b;
-				iterationsToRGB(count, r, g, b);
-				m_vArray[j + i * m_pixel_size.x].color = { r,g,b };
+				iterationsToRGB(count, r, g, b); // reference passing
+				m_vArray[j + i * m_pixel_size.x].color = { r,g,b }; // now set the calculated colors for that vertex
 			}
 		}
+		// set it to display at the end to stop
 		m_state = State::DISPLAYING;
 	}
 }
@@ -86,7 +91,7 @@ void ComplexPlane::loadText(Text& text)
 	ss << "Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")" << endl;
 	ss << "Zoom Level: " << m_zoomCount << endl;
 	ss << "Iterations: " << MAX_ITER << endl;
-	string display_text = ss.str();
+	string display_text = ss.str(); // I like to store it in a separate variable then pass that
 	text.setString(display_text);
 }
 
@@ -112,6 +117,7 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 
 void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 {
+	// set to black if count eaches max_iter, meaning it didn't escape.
 	if (count == MAX_ITER)
 	{
 		r = 0;
@@ -120,36 +126,36 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 	}
 	else
 	{
-
+		// establish the region and color.
 		int region = count / (MAX_ITER / 5);
 		int color = count % 5;
 
 		switch (region)
 		{
 		case 0:
-			r = 0;
+			r = 255 - color * 255 / (MAX_ITER / 5);
 			g = 0;
-			b = 255 - color * 255 / (MAX_ITER / 5);
+			b = 255;
 			break;
 		case 1:
-			r = 0;
-			g = color * 255 / (MAX_ITER / 5);
+			r = color * 255 / (MAX_ITER / 5);
+			g = 0;
 			b = 255;
 			break;
 		case 2:
-			r = 0;
-			g = 255;
-			b = 255 - color * 255 / (MAX_ITER / 5);
-			break;
-		case 3:
-			r = color * 255 / (MAX_ITER / 5);
+			r = 255 - color * 255 / (MAX_ITER / 5);
 			g = 255;
 			b = 0;
+			break;
+		case 3:
+			r = 0;
+			g = 255;
+			b = color * 255 / (MAX_ITER / 5);
 			break;
 		case 4:
 			r = 255;
-			g = 255 - color * 255 / (MAX_ITER / 5);
-			b = 0;
+			g = 0;
+			b = 255 - color * 255 / (MAX_ITER / 5);
 			break;
 		}
 	}
