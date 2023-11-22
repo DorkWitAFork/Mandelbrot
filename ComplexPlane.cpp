@@ -24,12 +24,33 @@ void ComplexPlane::draw(RenderTarget& target, RenderStates states) const
 	target.draw(m_vArray);
 }
 
+void ComplexPlane::updateRender()
+{
+	if (m_state == State::CALCULATING)
+	{
+		for (int i = 0; i < m_pixel_size.y; i++)
+		{
+			for (int j = 0; j < m_pixel_size.x; j++)
+			{
+				m_vArray[i * m_pixel_size.x + j].position = { (float)j,(float)i };
+				Vector2f coord = mapPixelToCoords({ j,i });
+				int count = countIterations(coord);
+				Uint8 r, g, b;
+				iterationsToRGB(count, r, g, b);
+				m_vArray[j + i * m_pixel_size.x].color = { r,g,b };
+			}
+		}
+		m_state = State::DISPLAYING;
+	}
+}
+
 void ComplexPlane::zoomIn()
 {
 	m_zoomCount++;
 	float x_size = BASE_WIDTH * pow(BASE_ZOOM, m_zoomCount);
 	float y_size = BASE_HEIGHT * m_aspectRatio * pow(BASE_ZOOM, m_zoomCount);
-	m_plane_size = { x_size, y_size };
+	m_plane_size.x = x_size;
+	m_plane_size.y = y_size;
 	m_state = State::CALCULATING;
 }
 
@@ -60,32 +81,16 @@ void ComplexPlane::loadText(Text& text)
 	ss << "Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")" << endl;
 	ss << "Zoom Level: " << m_zoomCount << endl;
 	ss << "Iterations: " << MAX_ITER << endl;
-	text.setString(ss.str());
+	string display_text = ss.str();
+	text.setString(display_text);
 }
 
-void ComplexPlane::updateRender()
-{
-	if (m_state == State::CALCULATING)
-	{
-		for (int i = 0; i < m_pixel_size.y; i++)
-		{
-			for (int j = 0; j < m_pixel_size.x; j++)
-			{
-				m_vArray[i * m_pixel_size.x + j].position = { (float)j,(float)i };
-				Vector2f coord = mapPixelToCoords({ j,i });
-				int count = countIterations(coord);
-				Uint8 r, g, b;
-				iterationsToRGB(count, r, g, b);
-				m_vArray[j + i * m_pixel_size.x].color = { r,g,b };
-			}
-		}
-		m_state = State::DISPLAYING;
-	}
-}
 
 size_t ComplexPlane::countIterations(Vector2f coord)
 {
-	complex<float> c(coord.x, coord.y);
+	complex<float> c;
+	c.real(coord.x);
+	c.imag(coord.y);
 	complex<float> z(0, 0);
 	size_t count = 0;
 	while (abs(z) < 2 && count < MAX_ITER)
