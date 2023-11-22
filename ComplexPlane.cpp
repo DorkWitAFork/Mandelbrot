@@ -123,6 +123,7 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 
 		int region = count / (MAX_ITER / 5);
 		int color = count % 5;
+
 		switch (region)
 		{
 		case 0:
@@ -156,9 +157,27 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 
 Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel)
 {
-	float x = ((mousePixel.x - 0) / (float)m_pixel_size.x) * m_plane_size.x + (m_plane_center.x - m_plane_size.x / 2.0);
-	float y = ((mousePixel.y - m_pixel_size.y) / (float)(0 - m_pixel_size.y)) * m_plane_size.y + (m_plane_center.y - m_plane_size.y / 2.0);
-	return { x,y };
+	// Help us find their position relative to the size of the window
+	//float windowPosX = (mousePixel.x - 0) / static_cast<float>(m_pixel_size.x);
+	//float windowPosY = (mousePixel.y - m_pixel_size.y) / static_cast<float>(-m_pixel_size.y);
+
+	// Then we add the offsets to get the range [0,2]
+	//float planePosX = relativePosX * m_plane_size.x;
+	//float planePosY = relativePosY * m_plane_size.y;
+
+	// Calculate the offsets from the center of the plane
+	//float offsetX = (m_plane_center.x - m_plane_size.x) / 2.0;
+	//float offsetY = (m_plane_center.y - m_plane_size.y) / 2.0;
+
+	// Apply the offsets to the scaled positions to get the final coordinates
+	//float x = scaledPosX + offsetX;
+	//float y = scaledPosY + offsetY;
+	
+	float x = (mousePixel.x - 0) / static_cast<float>(m_pixel_size.x) * m_plane_size.x + (m_plane_center.x - m_plane_size.x) / 2.0;
+	float y = (mousePixel.y - m_pixel_size.y) / static_cast<float>(-m_pixel_size.y) * m_plane_size.y + (m_plane_center.y - m_plane_size.y) / 2.0;
+
+	// Return the calculated coordinates in the complex plane
+	return { x, y };
 }
 
 
