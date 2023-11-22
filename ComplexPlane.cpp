@@ -169,14 +169,14 @@ Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel)
 	//float offsetX = (m_plane_center.x - m_plane_size.x) / 2.0;
 	//float offsetY = (m_plane_center.y - m_plane_size.y) / 2.0;
 
-	// Apply the offsets to the scaled positions to get the final coordinates
+	// Now add those offsets to get the exact spot on the plane
 	//float x = scaledPosX + offsetX;
 	//float y = scaledPosY + offsetY;
 	
 	float x = (mousePixel.x - 0) / static_cast<float>(m_pixel_size.x) * m_plane_size.x + (m_plane_center.x - m_plane_size.x) / 2.0;
 	float y = (mousePixel.y - m_pixel_size.y) / static_cast<float>(-m_pixel_size.y) * m_plane_size.y + (m_plane_center.y - m_plane_size.y) / 2.0;
 
-	// Return the calculated coordinates in the complex plane
+	
 	return { x, y };
 }
 
