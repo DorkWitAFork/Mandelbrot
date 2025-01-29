@@ -6,7 +6,6 @@
 #include <complex>
 
 using namespace sf;
-using namespace std;
 
 const unsigned int MAX_ITER = 64;
 const float BASE_WIDTH = 4.0;
@@ -15,8 +14,7 @@ const float BASE_ZOOM = 0.5;
 
 enum class State { CALCULATING, DISPLAYING };
 
-class ComplexPlane : public sf::Drawable
-{
+class ComplexPlane : public sf::Drawable {
 	public:
 		ComplexPlane(int pixelWidth, int pixelHeight);
 		void draw (RenderTarget &target, RenderStates states) const;
